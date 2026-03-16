@@ -1,0 +1,111 @@
+# ===========================
+# ScholarFlow .gitignore
+# ===========================
+
+# ----- 系统文件 -----
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# ----- IDE -----
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# ----- 环境变量 -----
+.env
+.env.local
+.env.*.local
+*.env
+
+# ----- Python -----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Python 虚拟环境
+venv/
+.venv/
+ENV/
+env/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# mypy
+.mypy_cache/
+
+# ----- Node.js -----
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Next.js
+.next/
+out/
+
+# ----- 数据文件 -----
+*.db
+*.sqlite
+*.sqlite3
+data/
+uploads/
+
+# Chroma 向量数据库
+chroma_data/
+
+# ----- 日志 -----
+logs/
+*.log
+
+# ----- 临时文件 -----
+tmp/
+temp/
+*.tmp
+*.temp
+
+# ----- 构建产物 -----
+build/
+dist/
+*.exe
+*.dll
+
+# ----- 测试覆盖率 -----
+coverage/
+.nyc_output/
+
+# ----- 文档构建 -----
+docs/_build/
+
+# ----- 其他 -----
+*.bak
+*.backup
+
