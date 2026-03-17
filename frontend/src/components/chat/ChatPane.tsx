@@ -149,16 +149,7 @@ export function ChatPane() {
   const handleSend = async () => {
     if (!inputValue.trim() || isGenerating) return
     
-    if (selectedDocumentIds.length === 0) {
-      // 提示用户选择文献
-      addMessage({
-        id: Date.now().toString(),
-        role: "assistant",
-        content: "⚠️ 请先在左侧文献库中选择至少一篇文献，我才能基于文献为您回答。",
-        created_at: new Date().toISOString()
-      })
-      return
-    }
+    // 未选择文献时允许对话，模型会基于自身知识回答
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -393,11 +384,11 @@ export function ChatPane() {
         </div>
       )}
 
-      {/* 未选择文献提示 */}
+      {/* 未选择文献提示（温和提示，不阻断对话） */}
       {selectedDocumentIds.length === 0 && (
-        <div className="mx-6 mb-2 flex items-center gap-2 rounded-lg bg-slate-100 px-4 py-3 text-sm text-slate-600 border border-slate-200">
-          <AlertCircle className="h-4 w-4 shrink-0 text-slate-400" />
-          <span>Please select a document. AI will only answer based on the selected document.</span>
+        <div className="mx-6 mb-2 flex items-center gap-2 rounded-lg bg-slate-50 px-4 py-2 text-xs text-slate-400 border border-slate-100">
+          <Sparkles className="h-3 w-3 shrink-0" />
+          <span>Select a document to enable citation-based answers. You can still chat freely.</span>
         </div>
       )}
 
