@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
+import { api } from "@/lib/api-client"
 
 interface AutosaveState {
   status: "idle" | "saving" | "saved" | "error"
@@ -53,22 +54,11 @@ export function useAutosave({
     setState((prev) => ({ ...prev, status: "saving" }))
 
     try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/drafts/${draftId}/autosave`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ content, project_id: projectId }),
-        }
+      const result = await api.post<{ data?: { version?: number } }>(
+        `/api/drafts/${draftId}/autosave`,
+        { content, project_id: projectId },
+        false
       )
-
-      if (!response.ok) {
-        throw new Error("保存失败")
-      }
-
-      const result = await response.json()
       
       if (isMountedRef.current) {
         const newVersion = result.data?.version || state.version + 1

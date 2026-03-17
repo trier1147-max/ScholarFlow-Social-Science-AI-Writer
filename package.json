@@ -1,0 +1,10 @@
+{
+  "name": "scholarflow",
+  "private": true,
+  "description": "AI 学术写作助手",
+  "scripts": {
+    "build": "cd frontend && npm ci && npm run build",
+    "dev": "cd frontend && npm run dev",
+    "start": "cd frontend && npm run start"
+  }
+}

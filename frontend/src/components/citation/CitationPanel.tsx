@@ -9,6 +9,8 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { api } from "@/lib/api-client"
+import { getApiUrl } from "@/lib/config"
 import { cn } from "@/lib/utils"
 import {
   FileText,
@@ -64,14 +66,11 @@ export function CitationPanel({
       setLoading(true)
       setError(null)
       try {
-        const response = await fetch(
-          `http://127.0.0.1:8000/api/citations/chunk/${chunkId}`
+        const result = await api.get<{ data: CitationDetail }>(
+          `/api/citations/chunk/${chunkId}`,
+          false
         )
-        if (!response.ok) {
-          throw new Error("获取引用详情失败")
-        }
-        const result = await response.json()
-        if (result.data) {
+        if (result?.data) {
           setCitation(result.data)
         }
       } catch (err) {
@@ -88,7 +87,7 @@ export function CitationPanel({
   const getPdfUrl = () => {
     if (!citation) return ""
     // 使用 #page=N 参数让浏览器 PDF 查看器跳转到指定页
-    return `http://127.0.0.1:8000${citation.pdf_url}#page=${citation.page_number}`
+    return `${getApiUrl(citation.pdf_url)}#page=${citation.page_number}`
   }
 
   return (

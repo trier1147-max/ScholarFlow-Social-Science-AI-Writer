@@ -5,6 +5,7 @@ import { useAppStore } from "@/stores/app-store"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ConfirmDialog } from "@/components/ui/dialog"
+import { api } from "@/lib/api-client"
 import { cn } from "@/lib/utils"
 import {
   FolderOpen,
@@ -52,12 +53,9 @@ export function ProjectSelector({ onProjectChange }: ProjectSelectorProps) {
 
   const loadProjects = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/projects?page_size=100")
-      if (response.ok) {
-        const result = await response.json()
-        if (result.data) {
-          setProjects(result.data)
-        }
+      const result = await api.get<{ data: Project[] }>("/api/projects?page_size=100", false)
+      if (result.data) {
+        setProjects(result.data)
       }
     } catch (error) {
       console.error("Failed to load projects:", error)
@@ -70,19 +68,14 @@ export function ProjectSelector({ onProjectChange }: ProjectSelectorProps) {
     
     setIsLoading(true)
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: newProjectTitle.trim() })
+      const result = await api.post<{ data: Project }>("/api/projects", {
+        title: newProjectTitle.trim()
       })
       
-      if (response.ok) {
-        const result = await response.json()
-        if (result.data) {
-          addProject(result.data)
-          setCurrentProject(result.data.id)
-          onProjectChange?.(result.data.id)
-        }
+      if (result.data) {
+        addProject(result.data)
+        setCurrentProject(result.data.id)
+        onProjectChange?.(result.data.id)
       }
     } catch (error) {
       console.error("Failed to create project:", error)
@@ -103,16 +96,11 @@ export function ProjectSelector({ onProjectChange }: ProjectSelectorProps) {
     if (!deleteConfirm.projectId) return
     
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/projects/${deleteConfirm.projectId}`, {
-        method: "DELETE"
-      })
-      
-      if (response.ok) {
-        removeProject(deleteConfirm.projectId)
-        if (currentProjectId === deleteConfirm.projectId) {
-          setCurrentProject(null)
-          onProjectChange?.(null)
-        }
+      await api.delete(`/api/projects/${deleteConfirm.projectId}`, false)
+      removeProject(deleteConfirm.projectId)
+      if (currentProjectId === deleteConfirm.projectId) {
+        setCurrentProject(null)
+        onProjectChange?.(null)
       }
     } catch (error) {
       console.error("Failed to delete project:", error)
@@ -136,15 +124,8 @@ export function ProjectSelector({ onProjectChange }: ProjectSelectorProps) {
     }
     
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/projects/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: editingTitle.trim() })
-      })
-      
-      if (response.ok) {
-        updateProject(id, { title: editingTitle.trim() })
-      }
+      await api.patch(`/api/projects/${id}`, { title: editingTitle.trim() }, false)
+      updateProject(id, { title: editingTitle.trim() })
     } catch (error) {
       console.error("Failed to update project:", error)
     } finally {

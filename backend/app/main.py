@@ -42,10 +42,10 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS 配置 - 开发环境允许所有来源
+# CORS 配置 - 可通过 CORS_ORIGINS 环境变量配置
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],

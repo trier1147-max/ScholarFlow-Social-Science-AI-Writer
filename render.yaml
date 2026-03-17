@@ -1,0 +1,28 @@
+# Render 部署配置 - 后端服务
+# 前端部署到 Vercel，后端部署到 Render
+# 部署时在 Render Dashboard 选择 "Blueprint" 并连接此仓库
+
+services:
+  - type: web
+    name: scholarflow-backend
+    runtime: python
+    region: singapore
+
+    # 从 backend 目录构建
+    rootDir: backend
+
+    buildCommand: pip install -r requirements.txt
+
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.0"
+      - key: APP_ENV
+        value: production
+      - key: DEBUG
+        value: "false"
+      # 以下变量需在 Render Dashboard 中手动配置（敏感信息）:
+      # - DEEPSEEK_API_KEY
+      # - SECRET_KEY
+      # - DATABASE_URL (可选，默认使用 SQLite)

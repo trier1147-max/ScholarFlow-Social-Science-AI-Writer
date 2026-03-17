@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react"
 import { useAppStore } from "@/stores/app-store"
 import { Button } from "@/components/ui/button"
+import { api } from "@/lib/api-client"
 import { cn } from "@/lib/utils"
 import { 
   Copy, 
@@ -50,20 +51,14 @@ export function EditorPane() {
       setIsLoadingDraft(true)
       try {
         // 构建 URL，传入项目 ID
-        let url = "http://127.0.0.1:8000/api/drafts/latest"
-        if (currentProjectId) {
-          url += `?project_id=${currentProjectId}`
-        }
-        
-        const response = await fetch(url)
-        if (response.ok) {
-          const result = await response.json()
-          if (result.data) {
-            setDraftId(result.data.id)
-            // 只有内容不同时才更新（避免覆盖正在编辑的内容）
-            if (result.data.content !== editorContent) {
-              setEditorContent(result.data.content || "")
-            }
+        const url = currentProjectId
+          ? `/api/drafts/latest?project_id=${currentProjectId}`
+          : "/api/drafts/latest"
+        const result = await api.get<{ data: any }>(url, false)
+        if (result.data) {
+          setDraftId(result.data.id)
+          if (result.data.content !== editorContent) {
+            setEditorContent(result.data.content || "")
           }
         }
       } catch (error) {
@@ -150,23 +145,14 @@ ${editorContent}
     setIsPolishing(true)
     
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/polish", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      const result = await api.post<{ data?: { content?: string; ai_markers?: string[] } }>(
+        "/api/polish",
+        {
           content: textContent,
           lite_mode: textContent.length < 500, // 短文本使用快速模式
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.detail || "润色请求失败")
-      }
-
-      const result = await response.json()
+        },
+        true
+      )
       if (result.data?.content) {
         // 将润色后的文本转换为 HTML
         // 处理段落和换行
@@ -210,21 +196,11 @@ ${editorContent}
     if (!textContent.trim()) return
     
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/polish/check-markers", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: textContent,
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error("检查失败")
-      }
-
-      const result = await response.json()
+      const result = await api.post<{ data?: { has_issues?: boolean; markers?: string[] } }>(
+        "/api/polish/check-markers",
+        { content: textContent },
+        false
+      )
       setTraceResult({
         hasIssues: result.data?.has_issues || false,
         markers: result.data?.markers || []

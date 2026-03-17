@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from "react"
 import { useAppStore } from "@/stores/app-store"
 import { Button } from "@/components/ui/button"
+import { api } from "@/lib/api-client"
+import { getApiUrl } from "@/lib/config"
 import { cn } from "@/lib/utils"
 import { 
   Send, 
@@ -65,12 +67,9 @@ export function ChatPane() {
     if (!currentProjectId) return
     
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/chat/project/${currentProjectId}`)
-      if (response.ok) {
-        const result = await response.json()
-        if (result.data) {
-          setConversations(result.data)
-        }
+      const result = await api.get<{ data: ConversationListItem[] }>(`/api/chat/project/${currentProjectId}`, false)
+      if (result.data) {
+        setConversations(result.data)
       }
     } catch (error) {
       console.error("Failed to load conversation list:", error)
@@ -82,21 +81,17 @@ export function ChatPane() {
     if (!currentProjectId) return
     
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/chat/project/${currentProjectId}/latest`)
-      if (response.ok) {
-        const result = await response.json()
-        if (result.data) {
-          // 加载对话历史
-          setCurrentConversationId(result.data.id)
-          const loadedMessages: Message[] = result.data.messages.map((msg: any) => ({
-            id: msg.id,
-            role: msg.role,
-            content: msg.content,
-            citations: msg.citations,
-            created_at: msg.created_at
-          }))
-          setMessages(loadedMessages)
-        }
+      const result = await api.get<{ data: { id: string; messages: any[] } }>(`/api/chat/project/${currentProjectId}/latest`, false)
+      if (result.data) {
+        setCurrentConversationId(result.data.id)
+        const loadedMessages: Message[] = result.data.messages.map((msg: any) => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+          citations: msg.citations,
+          created_at: msg.created_at
+        }))
+        setMessages(loadedMessages)
       }
     } catch (error) {
       console.error("Failed to load conversation history:", error)
@@ -106,21 +101,18 @@ export function ChatPane() {
   // 切换对话
   const handleSelectConversation = async (conversationId: string) => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/chat/${conversationId}/history`)
-      if (response.ok) {
-        const result = await response.json()
-        if (result.data) {
-          setCurrentConversationId(result.data.id)
-          const loadedMessages: Message[] = result.data.messages.map((msg: any) => ({
-            id: msg.id,
-            role: msg.role,
-            content: msg.content,
-            citations: msg.citations,
-            created_at: msg.created_at
-          }))
-          setMessages(loadedMessages)
-          setIsSidebarOpen(false)
-        }
+      const result = await api.get<{ data: { id: string; messages: any[] } }>(`/api/chat/${conversationId}/history`, false)
+      if (result.data) {
+        setCurrentConversationId(result.data.id)
+        const loadedMessages: Message[] = result.data.messages.map((msg: any) => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+          citations: msg.citations,
+          created_at: msg.created_at
+        }))
+        setMessages(loadedMessages)
+        setIsSidebarOpen(false)
       }
     } catch (error) {
       console.error("Failed to load conversation:", error)
@@ -190,7 +182,7 @@ export function ChatPane() {
 
     try {
       // 调用后端 API (SSE)
-      const response = await fetch("http://127.0.0.1:8000/api/chat", {
+      const response = await fetch(getApiUrl("/api/chat"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

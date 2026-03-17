@@ -107,6 +107,15 @@ ScholarFlow/
 | Consensus | 学术检索 | 我们基于私有库写作 |
 | Jenni AI | 通用写作 | 我们深耕人文社科 |
 
+## 🌐 部署上线
+
+项目已配置好部署流程，可一键部署到线上展示：
+
+- **前端** → [Vercel](https://vercel.com)（Root Directory: `frontend`）
+- **后端** → [Railway](https://railway.app) 或 [Render](https://render.com)（Root Directory: `backend`）
+
+详细步骤见 [部署指南](./docs/DEPLOYMENT.md)。
+
 ## 📜 开发规范
 
 详见 [开发规范文档](./docs/DEVELOPMENT.md)

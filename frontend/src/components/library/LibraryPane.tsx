@@ -5,6 +5,7 @@ import { useAppStore } from "@/stores/app-store"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/hooks/useToast"
+import { api } from "@/lib/api-client"
 import { cn } from "@/lib/utils"
 import { 
   Upload, 
@@ -43,12 +44,9 @@ export function LibraryPane() {
     if (!currentProjectId) return
     
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/projects/${currentProjectId}/documents`)
-      if (response.ok) {
-        const result = await response.json()
-        if (result.data) {
-          setDocuments(result.data)
-        }
+      const result = await api.get<{ data: any[] }>(`/api/projects/${currentProjectId}/documents`, false)
+      if (result.data) {
+        setDocuments(result.data)
       }
     } catch (error) {
       console.error("Failed to load documents:", error)
@@ -60,11 +58,7 @@ export function LibraryPane() {
     if (!currentProjectId) return
     
     try {
-      await fetch(`http://127.0.0.1:8000/api/projects/${currentProjectId}/documents`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ document_ids: [documentId] })
-      })
+      await api.post(`/api/projects/${currentProjectId}/documents`, { document_ids: [documentId] }, false)
       
       // 更新项目文献数量
       const currentProject = projects.find(p => p.id === currentProjectId)
@@ -82,11 +76,11 @@ export function LibraryPane() {
     if (!currentProjectId) return
     
     try {
-      await fetch(`http://127.0.0.1:8000/api/projects/${currentProjectId}/documents`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ document_ids: [docId] })
-      })
+      await api.deleteWithBody(
+        `/api/projects/${currentProjectId}/documents`,
+        { document_ids: [docId] },
+        false
+      )
       
       removeDocument(docId)
       
@@ -127,19 +121,7 @@ export function LibraryPane() {
         console.log('Sending request to backend...')
         
         // 调用后端上传 API
-        const response = await fetch('http://127.0.0.1:8000/api/documents/upload', {
-          method: 'POST',
-          body: formData,
-        })
-        
-        console.log('Response status:', response.status)
-        
-        if (!response.ok) {
-          const errorData = await response.json()
-          throw new Error(errorData.detail || '上传失败')
-        }
-        
-        const result = await response.json()
+        const result = await api.uploadFile<{ data: any }>('/api/documents/upload', file, undefined, true)
         
         // 添加到前端状态
         if (result.data) {
