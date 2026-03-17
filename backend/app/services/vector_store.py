@@ -70,10 +70,7 @@ class VectorStore:
     def _get_embedding_service(self):
         """获取 Embedding 服务"""
         if self._embedding_service is None:
-            self._embedding_service = get_embedding_service(
-                model_name=settings.EMBEDDING_MODEL,
-                device=settings.EMBEDDING_DEVICE
-            )
+            self._embedding_service = get_embedding_service()
         return self._embedding_service
     
     async def add_chunks(
