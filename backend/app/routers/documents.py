@@ -30,9 +30,10 @@ logger = logging.getLogger(__name__)
 
 async def index_document_vectors(document_id: str, chunks: list, document_metadata: dict):
     """后台任务：将文献切片索引到向量库"""
+    print(f"[VECTOR] Starting indexing for document {document_id}, {len(chunks)} chunks", flush=True)
     try:
         vector_store = get_vector_store()
-        
+
         # 为每个切片添加ID
         chunks_with_ids = []
         for i, chunk in enumerate(chunks):
@@ -42,15 +43,15 @@ async def index_document_vectors(document_id: str, chunks: list, document_metada
                 "chunk_index": i
             }
             chunks_with_ids.append(chunk_with_id)
-        
+
         await vector_store.add_chunks(
             document_id=document_id,
             chunks=chunks_with_ids,
             document_metadata=document_metadata
         )
-        logger.info(f"Successfully indexed {len(chunks)} chunks for document {document_id}")
+        print(f"[VECTOR] Successfully indexed {len(chunks)} chunks for document {document_id}", flush=True)
     except Exception as e:
-        logger.error(f"Failed to index document {document_id}: {e}")
+        print(f"[VECTOR] ERROR: Failed to index document {document_id}: {e}", flush=True)
 
 
 @router.post(

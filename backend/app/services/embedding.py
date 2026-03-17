@@ -17,6 +17,7 @@ JINA_MODEL = "jina-embeddings-v3"
 
 def _call_jina(texts: List[str], task: str) -> List[List[float]]:
     """调用 Jina Embeddings API"""
+    print(f"[JINA] Calling API: {len(texts)} texts, task={task}, key_set={bool(settings.JINA_API_KEY)}", flush=True)
     headers = {
         "Authorization": f"Bearer {settings.JINA_API_KEY}",
         "Content-Type": "application/json",
@@ -27,6 +28,7 @@ def _call_jina(texts: List[str], task: str) -> List[List[float]]:
         "task": task,
     }
     response = requests.post(JINA_API_URL, headers=headers, json=payload, timeout=60)
+    print(f"[JINA] Response status: {response.status_code}", flush=True)
     response.raise_for_status()
     data = response.json()
     return [item["embedding"] for item in data["data"]]
