@@ -42,9 +42,8 @@ class Settings(BaseSettings):
     DEEPSEEK_BASE_URL: str = "https://api.deepseek.com"
     DEEPSEEK_MODEL: str = "deepseek-chat"
     
-    # Embedding 配置
-    EMBEDDING_MODEL: str = "BAAI/bge-m3"
-    EMBEDDING_DEVICE: str = "cpu"
+    # Embedding 配置（Jina API）
+    JINA_API_KEY: str = ""
     
     # CORS 配置 - 开发环境允许所有来源
     CORS_ORIGINS: list[str] = ["*"]

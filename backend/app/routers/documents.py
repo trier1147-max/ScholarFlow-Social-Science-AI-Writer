@@ -146,20 +146,20 @@ async def upload_document(
         await db.commit()
         await db.refresh(document)
         
-        # 向量化暂时禁用（免费套餐内存不足，BAAI/bge-m3 会导致 OOM）
-        # if background_tasks and chunks:
-        #     document_metadata = {
-        #         "title": document.title,
-        #         "authors": document.authors,
-        #         "year": document.year
-        #     }
-        #     background_tasks.add_task(
-        #         index_document_vectors,
-        #         document.id,
-        #         chunks,
-        #         document_metadata
-        #     )
-        #     logger.info(f"Scheduled vector indexing for document {document.id}")
+        # 在后台将切片向量化（使用 Jina API，不占本地内存）
+        if background_tasks and chunks:
+            document_metadata = {
+                "title": document.title,
+                "authors": document.authors,
+                "year": document.year
+            }
+            background_tasks.add_task(
+                index_document_vectors,
+                document.id,
+                chunks,
+                document_metadata
+            )
+            logger.info(f"Scheduled vector indexing for document {document.id}")
         
         return DocumentUploadResponse(
             data=DocumentResponse(
